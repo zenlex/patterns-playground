@@ -1,0 +1,38 @@
+services: 
+  app: 
+    build: docker/app
+    env_file: 
+      - .env
+    restart: unless-stopped
+    ports: 
+      - 3000:3000
+    volumes:
+      - ./:/app
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - 127.0.0.1:5432:5432
+    restart: unless-stopped
+    volumes: 
+      - database:/var/lib/postgresql/data
+
+  db-test:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - 5433:5432
+    restart: unless-stopped
+    volumes: 
+      - database_test:/var/lib/postgresql/data
+
+volumes:
+  database:
+  database_test:

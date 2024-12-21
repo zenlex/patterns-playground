@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -eux
+
+npm ci
+exec npm run dev
