@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pattern {
+  id BigInt @id @default(autoincrement())
+  name String @unique
+  description String
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId BigInt
+  examples Example[]
+  tags Tag[]
+  considerations Consideration[]
+  prompts Prompt[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id BigInt @id @default(autoincrement())
+  name String @unique
+  patterns Pattern[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id BigInt @id @default(autoincrement())
+  name String @unique
+  considerations Consideration[]
+  prompts Prompt[]
+  patterns Pattern[]
+  examples Example[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Example {
+  id BigInt @id @default(autoincrement())
+  code String
+  language String
+  pattern Pattern @relation(fields: [patternId], references: [id])
+  patternId BigInt
+  prompts Prompt[]
+  tags Tag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Consideration {
+  id BigInt @id @default(autoincrement())
+  description String
+  tags Tag[]
+  prompts Prompt[]
+  patterns Pattern[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Prompt {
+  id BigInt @id @default(autoincrement())
+  description String
+  message String
+  examples Example[]
+  considerations Consideration[]
+  tags Tag[]
+  patterns Pattern[]
+  agents Agent[]
+  activeOnAgents Agent[] @relation("currentPrompt")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Agent {
+  id BigInt @id @default(autoincrement())
+  prompts Prompt[]
+  currentPromptId BigInt
+  currentPrompt Prompt @relation("currentPrompt", fields: [currentPromptId], references: [id])
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Playground {
+  id BigInt @id @default(autoincrement())
+  name String
+  content String
+  sessions PlaygroundSession[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlaygroundSession {
+  id BigInt @id @default(autoincrement())
+  playground Playground @relation(fields: [playgroundId], references: [id])
+  playgroundId BigInt
+  user User @relation(fields: [userId], references: [id])
+  userId BigInt
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id BigInt @id @default(autoincrement())
+  name String
+  connectedAccounts ConnectedAccount[]
+  playgroundSessions PlaygroundSession[]
+}
+
+model ConnectedAccount {
+  id BigInt @id @default(autoincrement())
+  provider String
+  providerAccountId String
+  userId BigInt
+  user User @relation(fields: [userId], references: [id])
+  accessToken String
+  refreshToken String
+  accessTokenExpires DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
