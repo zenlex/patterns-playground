@@ -9,6 +9,8 @@ RUN set -x \
         bash 
 
 COPY rootfs /
+COPY . . 
+
 RUN chmod +x /entrypoint
 
 ENTRYPOINT ["/entrypoint"]
